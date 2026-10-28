@@ -19,8 +19,7 @@
     {
       "binding": "DB",
       "database_name": "warm-planner-db",
-      // Replace with the id printed by `npx wrangler d1 create warm-planner-db`.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "0a1f234c-78fc-48a5-8992-29ce9810144b",
       "migrations_dir": "migrations"
     }
   ],
