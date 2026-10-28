@@ -1,19 +1,10 @@
-import {
-  boolean,
-  date,
-  index,
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
-export const categories = pgTable(
+export const categories = sqliteTable(
   "categories",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     slug: text("slug").notNull(),
     name: text("name").notNull(),
     color: text("color").notNull(),
@@ -22,21 +13,22 @@ export const categories = pgTable(
   (table) => [uniqueIndex("categories_slug_key").on(table.slug)],
 );
 
-export const events = pgTable(
+export const events = sqliteTable(
   "events",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     title: text("title").notNull(),
     notes: text("notes").notNull().default(""),
-    eventDate: date("event_date", { mode: "string" }).notNull(),
+    // ISO date string (YYYY-MM-DD); lexicographic order matches chronological order.
+    eventDate: text("event_date").notNull(),
     startTime: text("start_time"),
     endTime: text("end_time"),
-    allDay: boolean("all_day").notNull().default(true),
+    allDay: integer("all_day", { mode: "boolean" }).notNull().default(true),
     kind: text("kind").notNull().default("event"),
-    done: boolean("done").notNull().default(false),
+    done: integer("done", { mode: "boolean" }).notNull().default(false),
     categorySlug: text("category_slug").notNull().default("personal"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
   },
   (table) => [index("events_event_date_idx").on(table.eventDate)],
 );

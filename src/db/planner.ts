@@ -1,6 +1,5 @@
 import { and, asc, eq, gte, lte } from "drizzle-orm";
-import { db } from "@/db";
-import { ensureDatabase } from "@/db/bootstrap";
+import { getDb } from "@/db";
 import { categories, events } from "@/db/schema";
 import {
   DEFAULT_CATEGORIES,
@@ -52,13 +51,13 @@ function toItem(row: EventSelect): PlannerItem {
 }
 
 export async function listItems(): Promise<PlannerItem[]> {
-  await ensureDatabase();
+  const db = getDb();
   const rows = await db.select(eventColumns).from(events).orderBy(asc(events.eventDate), asc(events.id));
   return sortItems(rows.map(toItem));
 }
 
 export async function listCategories(): Promise<Category[]> {
-  await ensureDatabase();
+  const db = getDb();
   const rows = await db
     .select({
       id: categories.id,
@@ -147,13 +146,13 @@ export function parseItemInput(body: unknown, partial = false): ValidationResult
 }
 
 export async function createItem(input: ItemInput): Promise<PlannerItem> {
-  await ensureDatabase();
+  const db = getDb();
   const [row] = await db.insert(events).values(input).returning(eventColumns);
   return toItem(row);
 }
 
 export async function updateItem(id: number, input: Partial<ItemInput>): Promise<PlannerItem | null> {
-  await ensureDatabase();
+  const db = getDb();
   const [row] = await db
     .update(events)
     .set({ ...input, updatedAt: new Date() })
@@ -163,13 +162,13 @@ export async function updateItem(id: number, input: Partial<ItemInput>): Promise
 }
 
 export async function deleteItem(id: number): Promise<boolean> {
-  await ensureDatabase();
+  const db = getDb();
   const rows = await db.delete(events).where(eq(events.id, id)).returning({ id: events.id });
   return rows.length > 0;
 }
 
 export async function listItemsInRange(from: string, to: string): Promise<PlannerItem[]> {
-  await ensureDatabase();
+  const db = getDb();
   const rows = await db
     .select(eventColumns)
     .from(events)

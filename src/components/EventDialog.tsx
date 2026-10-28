@@ -28,11 +28,14 @@ export function EventDialog({
 }: Props) {
   const [form, setForm] = useState<Draft>(draft);
   const [error, setError] = useState<string | null>(null);
+  const [prevDraft, setPrevDraft] = useState<Draft>(draft);
 
-  useEffect(() => {
+  // Reset the form when a new draft comes in (adjusting state during render, not in an effect).
+  if (draft !== prevDraft) {
+    setPrevDraft(draft);
     setForm(draft);
     setError(null);
-  }, [draft]);
+  }
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
